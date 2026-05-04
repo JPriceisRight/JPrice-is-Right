@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sonic Number 5</title>
+    <style>
+        body {
+            background-color: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+            font-family: sans-serif;
+        }
+        #number-synth {
+            font-size: 250px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            text-shadow: 0 0 20px #ff00ff;
+            color: #ff00ff;
+        }
+        /* This class will be toggled by the audio API */
+        .pulsing {
+            transform: scale(1.1);
+            text-shadow: 0 0 50px #00ffff, 0 0 80px #00ffff;
+            color: #00ffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="number-synth">5</div
+    
+    <script>
+    const numberElement = document.getElementById('number-synth');
+    
+    // Set up the Audio Context (this is the engine!)
+    let audioCtx;
+    let oscillator;
+    let gainNode;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    function playSynth() {
+        initAudio();
+        
+        // Create an oscillator (generates the sound wave)
+        oscillator = audioCtx.createOscillator();
+        oscillator.type = 'sawtooth'; // 'sawtooth' has a great buzzy synth sound
+        oscillator.frequency.setValueAtTime(110, audioCtx.currentTime); // 110Hz is a low 'A' bass note
+
+        // Create a gain node (controls the volume)
+        gainNode = audioCtx.createGain();
+        
+        // Connect the nodes: Oscillator -> Gain -> Speakers
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        // Fade in the sound quickly to avoid clicks
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.05);
+
+        oscillator.start();
+
+        // Add the visual pulse effect
+        numberElement.classList.add('pulsing');
+    }
+
+    function stopSynth() {
+        if (gainNode) {
+            // Fade out the sound
+            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
+            setTimeout(() => {
+                if(oscillator) oscillator.stop();
+            }, 100);
+        }
+        
+        // Remove the visual pulse
+        numberElement.classList.remove('pulsing');
+    }
+
+    // Connect the mouse interactions to the synth
+    numberElement.addEventListener('mousedown', playSynth);
+    numberElement.addEventListener('mouseup', stopSynth);
+    numberElement.addEventListener('mouseleave', stopSynth); // In case the mouse leaves while clicking
+</script>
+</body>
+</html>
