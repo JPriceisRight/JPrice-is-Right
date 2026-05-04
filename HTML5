@@ -1,8 +1,0 @@
-// Draw an invisible '8' on a background canvas
-const maskCanvas = document.createElement('canvas');
-const ctx = maskCanvas.getContext('2d');
-ctx.font = "900 300px sans-serif";
-ctx.fillText("8", xPosition, yPosition);
-
-// Extract the pixel data to see where the '8' is solid
-const imageData = ctx.getImageData(0, 0, width, height)
